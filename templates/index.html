@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LectureLens — Advanced AI Study Engine</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <!-- Chart.js & jsPDF -->
+    <script src="https://unpkg.com/chart.js@4.4.7/dist/chart.umd.js"></script>
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <!-- Vanilla Tilt & Confetti -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+    <!-- Pure CSS Cyber Grid Background -->
+    <div id="cyber-bg"></div>
+    <div class="scanner-line"></div>
+
+    <!-- Custom Cursor -->
+    <div class="custom-cursor-dot" id="cursorDot"></div>
+    <div class="custom-cursor-outline" id="cursorOutline"></div>
+
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <div class="container main-content">
+
+        <!-- ── Navbar ──────────────────────────── -->
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <div class="logo-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                </div>
+                <span class="logo-text">LL_ENGINE</span>
+            </a>
+        </nav>
+
+        <!-- ── Hero Section ────────────────────── -->
+        <section class="hero">
+            <div class="hero-badge">
+                <span class="pulse-dot"></span> NEURAL EXTRACTION ACTIVE
+            </div>
+            <h1 class="glitch-text" data-text="Process Any Lecture.">
+                Process Any Lecture.<br>
+                <span class="gradient-text">Master Everything.</span>
+            </h1>
+            <p class="hero-subtext">Deploy advanced agentic analysis on YouTube URLs to extract structured knowledge, interactive neural flashcards, and realtime chat models.</p>
+
+            <!-- ── URL Input ───────────────────── -->
+            <div class="input-section">
+                <form id="urlForm">
+                    <div class="cyber-input-wrapper">
+                        <div class="input-glow"></div>
+                        <input
+                            type="url"
+                            class="url-input"
+                            id="urlInput"
+                            placeholder="INITIALIZE SEQUENCE URL: https://youtube.com/..."
+                            required
+                            autocomplete="off"
+                        />
+                        <button type="submit" class="cyber-btn" id="submitBtn">
+                            <span class="btn-text">INITIALIZE [ENTER]</span>
+                            <div class="spinner"></div>
+                        </button>
+                    </div>
+                </form>
+                <div class="error-message" id="errorMsg"></div>
+            </div>
+
+            <!-- ── Bento Box Feature Grid ──────── -->
+            <div class="bento-grid">
+                <div class="bento-card bento-large" data-tilt data-tilt-max="5" data-tilt-perspective="1000">
+                    <div class="bento-icon">📝</div>
+                    <h3>Neural Summarisation</h3>
+                    <p>Deep-dive markdown structuring with absolute precision timelines.</p>
+                </div>
+                <div class="bento-card bento-tall" data-tilt data-tilt-max="8">
+                    <div class="bento-icon">🧠</div>
+                    <h3>Cognitive Assesment</h3>
+                    <p>Timed MCQ architecture with auto-scoring grids.</p>
+                </div>
+                <div class="bento-card bento-small" data-tilt data-tilt-max="10">
+                    <div class="bento-icon">🃏</div>
+                    <h3>Flashcards</h3>
+                    <p>Spaced repetition models.</p>
+                </div>
+                <div class="bento-card bento-small" data-tilt data-tilt-max="10">
+                    <div class="bento-icon">💬</div>
+                    <h3>LLM Tutor</h3>
+                    <p>Realtime conversational interface.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Skeleton Loading ────────────────── -->
+        <div class="skeleton-container" id="skeletonLoader">
+            <div class="data-stream">Processing Neural Weights...</div>
+            <div class="skeleton-tabs">
+                <div class="skeleton-tab skeleton-line"></div>
+                <div class="skeleton-tab skeleton-line"></div>
+                <div class="skeleton-tab skeleton-line"></div>
+            </div>
+            <div class="skeleton-card">
+                <div class="skeleton-line full"></div>
+                <div class="skeleton-line half"></div>
+                <div class="skeleton-line full"></div>
+            </div>
+        </div>
+
+        <!-- ── Results Section ─────────────────── -->
+        <section class="results-section" id="resultsSection">
+            <!-- Embedded YouTube Player -->
+            <div class="video-embed" id="videoEmbed"></div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-nav">
+                <button class="tab-btn active" data-tab="summary"><span class="nav-icon">▤</span> SUMMARY</button>
+                <button class="tab-btn" data-tab="flashcards"><span class="nav-icon">◧</span> FLASHCARDS</button>
+                <button class="tab-btn" data-tab="quiz"><span class="nav-icon">⚄</span> QUIZ_SYS</button>
+                <button class="tab-btn" data-tab="chat"><span class="nav-icon">⌨</span> COMM_LINK</button>
+                <button class="tab-btn" data-tab="analytics"><span class="nav-icon">◒</span> TELEMETRY</button>
+            </div>
+
+            <!-- ─ Tab: Summary ─────────────────── -->
+            <div class="tab-content active" id="tab-summary">
+                <div class="action-bar">
+                    <button class="cyber-action-btn" id="copyBtn" onclick="copySummary()">[ COPY BUFFER ]</button>
+                    <button class="cyber-action-btn" onclick="downloadPdf()">[ EXPORT PDF ]</button>
+                </div>
+                <div class="summary-content" id="summaryContent"></div>
+            </div>
+
+            <!-- ─ Tab: Flashcards ──────────────── -->
+            <div class="tab-content" id="tab-flashcards">
+                <div class="tab-loading"><div class="spinner"></div><p>AWAITING DATA STREAM...</p></div>
+            </div>
+
+            <!-- ─ Tab: Quiz ────────────────────── -->
+            <div class="tab-content" id="tab-quiz">
+                <div class="tab-loading"><div class="spinner"></div><p>GENERATING ASSESMENT...</p></div>
+            </div>
+
+            <!-- ─ Tab: Chat ────────────────────── -->
+            <div class="tab-content" id="tab-chat">
+                <div class="tab-loading"><div class="spinner"></div><p>CONNECTING LLM...</p></div>
+            </div>
+
+            <!-- ─ Tab: Analytics ───────────────── -->
+            <div class="tab-content" id="tab-analytics">
+                <div class="tab-loading"><div class="spinner"></div><p>CALCULATING TELEMETRY...</p></div>
+            </div>
+        </section>
+
+        <!-- ── Footer ──────────────────────────── -->
+        <footer class="footer">
+            <p>LL_ENGINE V2.0.4 &middot; GROQ NEURAL CORE &middot; STATUS: ONLINE</p>
+        </footer>
+
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
