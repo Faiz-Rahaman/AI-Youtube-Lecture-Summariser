@@ -88,5 +88,5 @@ Open your browser and navigate to `http://127.0.0.1:5000`.
 ---
 
 <div align="center">
-<i>Built with ❤️ using Python, Flask, and Next-Gen AI models.</i>
+<i>Built using Python, Flask, and Next-Gen AI models.</i>
 </div>
