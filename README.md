@@ -7,6 +7,8 @@
 [![Flask](https://img.shields.io/badge/Flask-3.x-lightgrey.svg)](https://flask.palletsprojects.com/)
 [![Groq](https://img.shields.io/badge/AI-Groq%20LLaMA%203-orange.svg)](https://groq.com/)
 [![Gemini](https://img.shields.io/badge/AI-Google%20Gemini-blue.svg)](https://aistudio.google.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-blue.svg)](.github/workflows/ci.yml)
 
 *Turn any YouTube lecture into an interactive study session in seconds.*
 
@@ -28,7 +30,8 @@ Unlike basic summarisers, LectureLens creates a **highly interactive, multi-tool
 - **💬 Chat with Lecture**: Ask follow-up questions — the AI tutor answers using *only* the lecture as context.
 - **📊 Difficulty Analytics**: Visual radar and bar charts (via Chart.js) analyzing topic complexity and lecture tone.
 - **📄 Export & Preserve**: Download your summary as a formatted PDF (via jsPDF) or copy it to your clipboard.
-- **🎨 Premium UI**: Dark/Light mode, custom cursor tracking, glassmorphism design, 3D card tilts, and confetti celebrations.
+- **🎨 Premium UI**: Dark/Light mode toggle, custom cursor tracking, glassmorphism design, 3D card tilts, and confetti celebrations.
+- **💾 Persistent Storage**: SQLite database integration for saving and retrieving lecture summaries with view tracking.
 - **⚡ Dual AI Engines**: Powered by **Groq** (insanely fast, generous free limits) with fallback to **Google Gemini**.
 
 ---
@@ -56,6 +59,14 @@ Create a file named `.env` in the root of the project and add your API keys. The
 ```dotenv
 GROQ_API_KEY=your_groq_api_key_here
 GEMINI_API_KEY=your_gemini_api_key_here
+
+# Optional: Configure debug mode (default: False)
+FLASK_DEBUG=False
+
+# Optional: Customize AI models
+GROQ_MODEL=llama-3.3-70b-versatile
+GEMINI_MODEL_PRIMARY=gemini-2.0-flash
+GEMINI_MODEL_FALLBACK=gemini-2.0-flash-lite
 ```
 
 ### 4. Run the Server
@@ -67,14 +78,27 @@ python app.py
 
 Open your browser and navigate to `http://127.0.0.1:5000`.
 
+### 5. Docker Deployment (Optional)
+Build and run using Docker:
+
+```bash
+# Build the image
+docker build -t lecturelens .
+
+# Run the container
+docker run -p 5000:5000 --env-file .env lecturelens
+```
+
 ---
 
 ## 🛠️ Tech Stack
 
-- **Backend**: Python, Flask, `youtube-transcript-api`
+- **Backend**: Python, Flask, `youtube-transcript-api`, SQLite
 - **AI Libraries**: `groq`, `google-genai`
-- **Frontend**: HTML5, Vanilla CSS3, Vanilla JavaScript
+- **Frontend**: HTML5, Vanilla CSS3, Vanilla JavaScript (ES6+)
 - **UI Components**: `Chart.js` (Analytics), `jsPDF` (Export), `Vanilla-Tilt.js` (3D Interactions), `Canvas-Confetti` (Effects)
+- **Testing**: pytest with coverage reporting
+- **Deployment**: Docker, GitHub Actions CI/CD
 
 ---
 
@@ -84,6 +108,86 @@ Open your browser and navigate to `http://127.0.0.1:5000`.
 2. **Extraction**: `transcript.py` parses the video ID and uses the YouTube caption API to fetch the spoken text.
 3. **AI Generation**: `summariser.py` sends the transcript to the AI provider (Groq/Gemini) with strict JSON and Markdown prompts to generate the 5 different study modules.
 4. **Rendering**: The backend sends the structured data back to `script.js` which dynamically builds the tabs, injects the charts, and initializes the interactivity engines.
+
+---
+
+## 🔒 Security Enhancements
+
+The following security measures have been implemented:
+
+- ✅ **URL Validation**: All YouTube URLs are validated against allowed domains
+- ✅ **LRU Caching**: Transcript cache limited to 100 entries to prevent memory exhaustion
+- ✅ **Input Sanitization**: Question length limits and input validation on all endpoints
+- ✅ **Error Logging**: Comprehensive logging for debugging and security monitoring
+- ✅ **Debug Mode Control**: Debug mode disabled by default, controlled via environment variable
+- ✅ **JSON Parsing**: Robust error handling for AI response parsing
+- ✅ **Timeout Configuration**: API calls have timeout limits to prevent hanging
+
+For a complete list of identified vulnerabilities and recommended fixes, see [`SECURITY_VULNERABILITIES.md`](./SECURITY_VULNERABILITIES.md).
+
+---
+
+## 🧪 Testing
+
+### Running Tests
+
+To run the test suite:
+
+```bash
+# Install test dependencies
+pip install pytest pytest-cov
+
+# Run all tests with verbose output
+python -m pytest tests/ -v
+
+# Run tests with coverage report
+python -m pytest tests/ -v --cov=. --cov-report=html
+```
+
+### Test Coverage
+
+The test suite includes:
+
+- ✅ **URL Validation Tests**: Verify YouTube URL security validation
+- ✅ **JSON Extraction Tests**: Test parsing of AI responses in various formats
+- ✅ **Database Tests**: Verify SQLite persistence and retrieval
+- ✅ **API Route Tests**: Integration tests for Flask endpoints
+- ✅ **Security Tests**: Input validation and error handling
+
+View HTML coverage report by opening `htmlcov/index.html` in your browser.
+
+### Continuous Integration
+
+Every push to GitHub triggers automated testing via GitHub Actions:
+
+- Unit and integration tests run on Python 3.10+
+- Security scanning with Bandit
+- Docker image build verification
+- Coverage reporting to Codecov
+
+See [`.github/workflows/ci.yml`](.github/workflows/ci.yml) for configuration details.
+
+---
+
+## 📋 Recent Updates
+
+### v2.2.0 - Production Ready Release
+- ✅ **Database Integration**: SQLite persistence for lecture summaries with view tracking
+- ✅ **Dark/Light Theme Toggle**: User-switchable themes with localStorage persistence
+- ✅ **Automated Testing**: Comprehensive pytest test suite with 10+ tests
+- ✅ **Docker Support**: Production-ready Dockerfile with security best practices
+- ✅ **CI/CD Pipeline**: GitHub Actions workflow for automated testing and security scanning
+- ✅ **MIT License**: Added open-source licensing
+- ✅ **Enhanced Documentation**: Updated README with deployment guides and testing instructions
+
+### v2.1.0 - Security Hardening Release
+- Added URL validation to prevent SSRF attacks
+- Implemented LRU caching to prevent memory exhaustion
+- Added comprehensive error logging
+- Fixed JSON parsing error handling
+- Made AI model names configurable via environment variables
+- Added timeout configuration for API calls
+- Fixed typos in UI ("Assesment" → "Assessment")
 
 ---
 
