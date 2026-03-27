@@ -130,6 +130,55 @@ body {
     font-family: 'JetBrains Mono', monospace; font-weight: 800;
     font-size: 1.2rem; letter-spacing: 2px;
 }
+.theme-toggle {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-neon);
+    color: var(--text-main);
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+.theme-toggle:hover {
+    background: rgba(138, 43, 226, 0.2);
+    box-shadow: var(--glow-primary);
+}
+
+[data-theme="light"] {
+    --bg-void: #f5f5fa;
+    --bg-glass-heavy: rgba(255, 255, 255, 0.9);
+    --bg-glass-light: rgba(240, 240, 250, 0.6);
+    --border-neon: rgba(138, 43, 226, 0.3);
+    --border-dim: rgba(0, 0, 0, 0.1);
+    --text-main: #1a1a2e;
+    --text-muted: #555570;
+    --cyber-grid-color: rgba(138, 43, 226, 0.08);
+}
+
+[data-theme="light"] body {
+    background-color: var(--bg-void);
+    color: var(--text-main);
+}
+
+[data-theme="light"] #cyber-bg {
+    background-image: 
+        linear-gradient(rgba(138,43,226, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(138,43,226, 0.08) 1px, transparent 1px);
+}
+
+[data-theme="light"] .glass-panel,
+[data-theme="light"] .card,
+[data-theme="light"] .input-group input,
+[data-theme="light"] .btn {
+    background: var(--bg-glass-light);
+    border-color: var(--border-dim);
+    color: var(--text-main);
+}
+
+[data-theme="light"] .navbar {
+    border-bottom-color: var(--border-dim);
+}
 
 /* ── Hero ── */
 .hero { text-align: center; padding-top: 40px; }

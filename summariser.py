@@ -8,25 +8,34 @@ import json
 import os
 import re
 import time
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # ── Provider Setup ─────────────────────────────
 # Priority: Groq first (more generous free tier), then Gemini
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 
+# Configurable model names (can be overridden via environment)
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+GEMINI_MODEL_PRIMARY = os.getenv("GEMINI_MODEL_PRIMARY", "gemini-2.0-flash")
+GEMINI_MODEL_FALLBACK = os.getenv("GEMINI_MODEL_FALLBACK", "gemini-2.0-flash-lite")
+
 if GROQ_API_KEY:
     from groq import Groq
     groq_client = Groq(api_key=GROQ_API_KEY)
     PROVIDER = "groq"
-    print("[AI Provider] Using Groq (fast, generous free tier)")
+    logger.info(f"[AI Provider] Using Groq with model: {GROQ_MODEL}")
 elif GEMINI_API_KEY:
     from google import genai
     gemini_client = genai.Client(api_key=GEMINI_API_KEY)
     PROVIDER = "gemini"
-    print("[AI Provider] Using Google Gemini")
+    logger.info(f"[AI Provider] Using Google Gemini with model: {GEMINI_MODEL_PRIMARY}")
 else:
     raise ValueError("No API key found! Set GROQ_API_KEY or GEMINI_API_KEY in your .env file.")
 
@@ -44,26 +53,28 @@ def _call_groq(prompt: str) -> str:
     for attempt in range(3):
         try:
             response = groq_client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
+                model=GROQ_MODEL,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.5,
                 max_tokens=4096,
+                timeout=30,  # Add timeout to prevent hanging
             )
             return response.choices[0].message.content
         except Exception as e:
             error_str = str(e)
             if "rate_limit" in error_str.lower() or "429" in error_str:
                 wait = 3 * (2 ** attempt)
-                print(f"[Groq rate limit] Retrying in {wait}s (attempt {attempt+1}/3)...")
+                logger.warning(f"[Groq rate limit] Retrying in {wait}s (attempt {attempt+1}/3)...")
                 time.sleep(wait)
             else:
+                logger.error(f"[Groq error] Attempt {attempt+1} failed: {error_str}")
                 raise
     raise Exception("Groq rate limit exceeded. Please wait a moment and try again.")
 
 
 def _call_gemini(prompt: str) -> str:
     """Call Gemini API with retry and fallback."""
-    models = ["gemini-2.0-flash", "gemini-2.0-flash-lite"]
+    models = [GEMINI_MODEL_PRIMARY, GEMINI_MODEL_FALLBACK]
     last_error = None
 
     for model in models:
@@ -79,11 +90,12 @@ def _call_gemini(prompt: str) -> str:
                 error_str = str(e)
                 if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
                     wait = 3 * (2 ** attempt)
-                    print(f"[Rate limit] Retrying in {wait}s (attempt {attempt+1}/2, model={model})...")
+                    logger.warning(f"[Rate limit] Retrying in {wait}s (attempt {attempt+1}/2, model={model})...")
                     time.sleep(wait)
                 else:
+                    logger.error(f"[Gemini error] Model {model} failed: {error_str}")
                     raise
-        print(f"[Rate limit] Model {model} exhausted, trying next...")
+        logger.warning(f"[Rate limit] Model {model} exhausted, trying next...")
 
     raise Exception(
         "Your Gemini API key has hit its daily limit. "
@@ -101,8 +113,8 @@ def _extract_json(text: str):
     if match:
         try:
             return json.loads(match.group(1).strip())
-        except:
-            pass
+        except json.JSONDecodeError as e:
+            logger.warning(f"JSON decode failed for markdown fence content: {str(e)}")
             
     # 2. Try slicing the exact JSON bracket structures
     try:
@@ -117,12 +129,19 @@ def _extract_json(text: str):
             start = first_brace
             end = text.rfind('}') + 1
         else:
-            raise ValueError("No JSON structures found")
+            raise ValueError("No JSON structures found in AI response")
             
         return json.loads(text[start:end])
-    except Exception as e:
+    except json.JSONDecodeError as e:
         # 3. Final fallback, attempt direct parse
-        return json.loads(text)
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            logger.error(f"All JSON extraction methods failed. Response preview: {text[:200]}...")
+            raise ValueError(
+                "Failed to parse AI response as JSON. The AI may have returned an invalid format. "
+                "Please try again or switch to a different AI provider."
+            )
 
 
 # ──────────────────────────────────────────────

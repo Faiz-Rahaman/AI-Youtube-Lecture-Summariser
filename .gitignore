@@ -1,21 +1,40 @@
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
+```
 # Python
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
+*.pyc
+*.pyo
+*.pyd
+*.py~
+
+# Database
+lectures.db
+
+# Environment
+.env
+
+# Dependencies
+venv/
+.venv/
+.env/
+
+# Logs
+*.log
+
+# Coverage
+.coverage
+htmlcov/
+coverage/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Project
-*.log
+# Tests
+.pytest_cache/
+```
