@@ -1,40 +1,4 @@
 ```
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.py~
-
-# Database
-lectures.db
-
-# Environment
-.env
-
-# Dependencies
-venv/
-.venv/
-.env/
-
-# Logs
-*.log
-
-# Coverage
-.coverage
-htmlcov/
-coverage/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Tests
-.pytest_cache/
+# CI/CD
+.github/workflows/ci.yml
 ```
