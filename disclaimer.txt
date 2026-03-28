@@ -1,0 +1,1 @@
+This code is the basic prototype of the flashcards and the quiz analysis usage, so enjoy to go through my project.
